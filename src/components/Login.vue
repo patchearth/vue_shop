@@ -77,11 +77,7 @@ export default {
         if (res.meta.status !== 200) return this.$message.error('用户名或密码错误')
         window.sessionStorage.setItem('token', res.data.token)
         this.$message.success('登录成功')
-        this.$router.push('/home')
-        
-
-
-        
+        this.$router.push('/home')      
       })
     }
   }
