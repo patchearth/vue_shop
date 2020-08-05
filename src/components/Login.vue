@@ -66,9 +66,6 @@ export default {
   methods: {
     resetForm () {
       this.$refs.loginFormRef.resetFields()
-      console.log(document.querySelector('.login_form'));
-      console.log(this.$refs.loginFormRef);
-      console.log(this.$refs.loginFormRef == document.querySelector('.login_form'));
     },
     login () {
       this.$refs.loginFormRef.validate(async (valid) => {
