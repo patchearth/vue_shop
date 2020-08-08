@@ -195,7 +195,6 @@ export default {
       this.$refs.addFormRef.resetFields()
     },
     addUser() {
-      console.log(this.$refs.addFormRef)
       this.$refs.addFormRef.validate(async (valid) => {
         if (!valid) {
           this.$message.error('验证未通过')
