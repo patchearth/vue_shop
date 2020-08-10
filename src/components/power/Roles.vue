@@ -294,7 +294,6 @@ export default {
         ...this.$refs.treeRef.getHalfCheckedKeys(),
       ]
       const idStr = treeArr.join(',')
-      console.log(idStr);
       const { data: res } = await this.$http.post(
         `roles/${this.roleId}/rights`,
         {
