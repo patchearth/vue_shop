@@ -39,7 +39,12 @@
               @click="deleteUser(scope.row.id)"
             ></el-button>
             <el-tooltip effect="dark" content="分配角色" placement="top-end" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
+              <el-button
+                type="warning"
+                icon="el-icon-setting"
+                size="mini"
+                @click="showSetRoleDialog(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -92,6 +97,26 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editUser">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 分配角色弹出层 -->
+    <el-dialog title="分配角色" :visible.sync="setRoleDialogVisible" width="50%" @close="setRoleDialogClosed">
+      <p>当前的用户:{{userInfo.username}}</p>
+      <p>当前的角色:{{userInfo.role_name}}</p>
+      <p>
+        分配新角色:
+        <el-select v-model="selectRoleId" placeholder="请选择">
+          <el-option
+            v-for="item in roleList"
+            :key="item.id"
+            :label="item.roleName"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </p>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -159,6 +184,10 @@ export default {
         email: '',
         mobile: '',
       },
+      setRoleDialogVisible: false,
+      userInfo: {},
+      roleList: [],
+      selectRoleId: '',
     }
   },
   methods: {
@@ -243,7 +272,7 @@ export default {
         type: 'warning',
       })
         .then(async () => {
-          const { data: res } = await this.$http.delete('users/' + id);
+          const { data: res } = await this.$http.delete('users/' + id)
           if (res.meta.status != 200) return this.$message.error('删除失败')
           this.$message.success(res.meta.msg)
           this.getUserList()
@@ -254,6 +283,31 @@ export default {
             message: '已取消删除',
           })
         })
+    },
+    async showSetRoleDialog(userInfo) {
+      this.userInfo = userInfo
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status != 200) return this.$message.error('获取角色列表失败')
+      this.roleList = res.data
+      console.log(this.roleList)
+      this.setRoleDialogVisible = true
+    },
+    async saveRoleInfo() {
+      if (!this.selectRoleId) return this.$message.info('请选择角色')
+      const { data: res } = await this.$http.put(
+        `users/${this.userInfo.id}/role`,
+        {
+          rid: this.selectRoleId,
+        }
+      )
+      if (res.meta.status != 200) return this.$message.error(res.meta.msg)
+      this.getUserList()
+      this.$message.success('更新成功')
+      this.setRoleDialogVisible = false
+    },
+    setRoleDialogClosed() {
+      this.userInfo = ''
+      this.selectRoleId = ''
     },
   },
   created() {
