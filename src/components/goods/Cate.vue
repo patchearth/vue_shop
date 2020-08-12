@@ -51,13 +51,22 @@
     <!-- 添加分类弹出层 -->
     <el-dialog title="提示" :visible.sync="addCateDialogVisible" width="50%">
       <el-form :model="addForm" :rules="addrules" ref="addFormRef" label-width="100px">
-        <el-form-item label="分类名称:" prop="name">
+        <el-form-item label="分类名称:" prop="cat_name">
           <el-input v-model="addForm.cat_name"></el-input>
+        </el-form-item>
+        <el-form-item label="父级分类">
+          <el-cascader
+            v-model="selectedKeys"
+            :options="parentCateList"
+            :props="cascaderProps"
+            @change="parentCateChange"
+            clearable
+          ></el-cascader>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addCateDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addCateDialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="closeAddCateDialog">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -100,9 +109,20 @@ export default {
         cat_level: '0',
       },
       addrules: {
-        name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }],
+        cat_name: [
+          { required: true, message: '请输入分类名称', trigger: 'blur' },
+        ],
       },
       addCateDialogVisible: false,
+      parentCateList: [],
+      cascaderProps: {
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children',
+        checkStrictly: true,
+        expandTrigger: 'hover',
+      },
+      selectedKeys: [],
     }
   },
   methods: {
@@ -123,10 +143,30 @@ export default {
       this.getCateList()
     },
     showAddDialog() {
+      this.getParentCateList()
       this.addCateDialogVisible = true
     },
     async getParentCateList() {
-      const {data:res} = await this.$http.get('')
+      const { data: res } = await this.$http.get('categories', {
+        params: {
+          type: 2,
+        },
+      })
+      if (res.meta.status != 200) return this.$message.error('获取父级分类失败')
+      this.parentCateList = res.data
+    },
+    parentCateChange() {
+      console.log(this.selectedKeys)
+      if (this.selectedKeys.length > 0) {
+        this.addForm.cat_pid = this.selectedKeys[this.selectedKeys.length - 1]
+        this.addForm.cat_level = this.selectedKeys.length
+        return
+      }
+      this.addForm.cat_pid = 0
+      this.addForm.cat_level = 0
+    },
+    closeAddCateDialog() {
+      console.log(this.addForm)
     },
   },
   created() {
@@ -137,5 +177,8 @@ export default {
 <style lang="less" scoped>
 .tree {
   margin-top: 15px;
+}
+.el-cascader {
+  width: 100%;
 }
 </style>
