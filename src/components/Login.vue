@@ -18,7 +18,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item class="btns">
-          <el-button type="primary" @click="login">登陆</el-button>
+          <el-button type="primary" @click="login">登录</el-button>
           <el-button type="info" @click="resetForm">重置</el-button>
         </el-form-item>
       </el-form>
